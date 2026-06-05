@@ -9,4 +9,4 @@ class Converter:
 
     @staticmethod
     def isExtensionValid(file):
-        return str.find(".pdf") != -1
+        return file.find(".pdf") != -1
