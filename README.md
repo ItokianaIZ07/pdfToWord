@@ -26,8 +26,6 @@ L'application est développée en **Python** avec le framework **Flask** et util
 * Python 3
 * Flask
 * pdf2docx
-* UUID
-* Werkzeug
 
 ### Frontend
 
