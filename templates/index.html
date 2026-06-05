@@ -1,36 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Convertisseur PDF vers Word</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/style.css" />
     <script src="../static/js/script.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="container">
+      <div class="icon">📄➡️📝</div>
 
-<div class="container">
+      <h1>PDF vers Word</h1>
+      <p>Convertissez vos fichiers PDF en documents Word en un clic</p>
 
-    <div class="icon">📄➡️📝</div>
+      <form id="form" enctype="multipart/form-data">
+        <label class="upload-box" for="pdfFile">
+          <div class="upload-icon">📁</div>
+          <h3>Sélectionner un PDF</h3>
+          <p id="fileName">Cliquez ici ou glissez votre fichier</p>
 
-    <h1>PDF vers Word</h1>
-    <p>Convertissez vos fichiers PDF en documents Word en un clic</p>
-
-    <form id="form" enctype="multipart/form-data">
-
-        <div class="upload-box">
-            <input type="file" name="file" accept="application/pdf" required>
-        </div>
+          <input
+            id="pdfFile"
+            type="file"
+            name="file"
+            accept="application/pdf"
+            required
+          />
+        </label>
 
         <button type="submit">Convertir maintenant</button>
+      </form>
 
-    </form>
+      <div class="loader hidden" id="loader">
+        <div class="spinner"></div>
+        <p>Chargement de la demande...</p>
+      </div>
 
-    <div class="footer">
-        Conversion rapide et sécurisée
+      <div class="footer">Conversion rapide et sécurisée</div>
     </div>
-
-</div>
-
-</body>
+  </body>
 </html>
