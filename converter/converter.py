@@ -1,10 +1,10 @@
 from pdf2docx import Converter
 
-class Converter:
+class PdfConverter:
     @staticmethod
-    def convert(file):
-        cv = Converter(file)
-        cv.convert(file)
+    def convert(fileInput, fileOutput):
+        cv = Converter(fileInput)
+        cv.convert(fileOutput)
         cv.close()
 
     @staticmethod
