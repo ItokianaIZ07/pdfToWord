@@ -5,6 +5,8 @@ import uuid
 
 app = Flask(__name__)
 
+generatedFile = ""
+
 @app.route('/', methods=["GET"])
 def index():
     return render_template("index.html")
@@ -14,10 +16,11 @@ def convert_pdf_to_word():
     file = request.files['file']
 
     if not PdfConverter.isExtensionValid(file.filename):
-        return {"erreur": "Le type de fichier n'est pas pris en charge. Veuillez importer un fichier pdf"}
+        return jsonify({"erreur": "Le type de fichier n'est pas pris en charge. Veuillez importer un fichier pdf"})
 
     pdf_path = f"{uuid.uuid4()}.pdf"
     docx_path = f"{uuid.uuid4()}.docx"
+    generatedFile = os.path.abspath(docx_path)
 
     file.save(pdf_path)
 
@@ -34,12 +37,19 @@ def convert_pdf_to_word():
     def cleanup(response):
         try:
             os.remove(pdf_path)
-            os.remove(docx_path)
         except Exception as e:
             print(e)
         return response
 
     return response
+
+@app.route("/clear", methods=["POST"])
+def clear():
+    try:
+        os.remove(generatedFile)
+    except Exception as e:
+        print(e)
+    return jsonify({"message": "File converted successfuly"})
 
 if __name__ == '__main__':
     app.run(debug=True)
