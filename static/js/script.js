@@ -1,98 +1,106 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("form");
+  if (!form) return;
 
-    const form = document.getElementById("form");
-    if (!form) return;
+  const fileInput = document.querySelector('input[type="file"]');
+  const loader = document.querySelector(".loader");
+  const fileNameElement = document.getElementById("fileName");
+  const uploadBox = document.querySelector(".upload-box");
 
-    const fileInput = document.querySelector('input[type="file"]');
-    const loader = document.querySelector(".loader");
-    const fileNameElement = document.getElementById("fileName");
+  let files = fileInput.files;
 
-    let selectedFileName = "converted";
+  let selectedFileName = "converted";
 
-    function showLoader() {
-        loader.classList.remove("hidden");
-    }
+  function showLoader() {
+    loader.classList.remove("hidden");
+  }
 
-    function hideLoader() {
-        loader.classList.add("hidden");
-    }
+  function hideLoader() {
+    loader.classList.add("hidden");
+  }
 
-    function createLink(url) {
-        const link = document.createElement("a");
-        link.href = url;
-        return link;
-    }
+  function createLink(url) {
+    const link = document.createElement("a");
+    link.href = url;
+    return link;
+  }
 
-    fileInput.addEventListener("change", () => {
+  function updateSelectedFileName(file) {
+    fileNameElement.textContent = file.name;
 
-        if (!fileInput.files.length) return;
+    selectedFileName = file.name.replace(/\.[^/.]+$/, "");
+  }
 
-        const file = fileInput.files[0];
+  fileInput.addEventListener("change", () => {
+    if (!files.length) return;
 
-        fileNameElement.textContent = file.name;
+    const file = files[0];
+    updateSelectedFileName(file);
+  });
 
-        selectedFileName = file.name.replace(/\.[^/.]+$/, "");
+  async function submit() {
+    const data = new FormData(form);
+
+    const response = await fetch("/convert", {
+      method: "POST",
+      body: data,
     });
 
-    async function submit() {
-
-        const data = new FormData(form);
-
-        const response = await fetch("/convert", {
-            method: "POST",
-            body: data
-        });
-
-        if (!response.ok) {
-            throw new Error("Erreur lors de la conversion");
-        }
-
-        const blob = await response.blob();
-
-        const url = window.URL.createObjectURL(blob);
-
-        const link = createLink(url);
-
-        link.download = `${selectedFileName}.docx`;
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-
-        window.URL.revokeObjectURL(url);
+    if (!response.ok) {
+      throw new Error("Erreur lors de la conversion");
     }
 
-    form.addEventListener("submit", async (e) => {
+    const blob = await response.blob();
 
-        e.preventDefault();
+    const url = window.URL.createObjectURL(blob);
 
-        if (!fileInput.files.length) {
-            alert("Veuillez sélectionner un fichier PDF.");
-            return;
-        }
+    const link = createLink(url);
 
-        try {
+    link.download = `${selectedFileName}.docx`;
 
-            showLoader();
+    document.body.appendChild(link);
 
-            await submit();
+    link.click();
 
-            alert("Conversion terminée avec succès.");
+    link.remove();
 
-        } catch (error) {
+    window.URL.revokeObjectURL(url);
+  }
 
-            console.error(error);
+  uploadBox.addEventListener("dragover", (e) => {
+    e.preventDefault();
+  });
 
-            alert("Une erreur est survenue pendant la conversion.");
+  uploadBox.addEventListener("drop", (e) => {
+    e.preventDefault();
+    files = e.dataTransfer.files;
+    if (!files.length) return;
+    fileInput.files = files;
 
-        } finally {
+    const file = files[0];
+    updateSelectedFileName(file);
+  });
 
-            hideLoader();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        }
+    if (!files.length) {
+      alert("Veuillez sélectionner un fichier PDF.");
+      return;
+    }
 
-    });
+    try {
+      showLoader();
 
+      await submit();
+
+      alert("Conversion terminée avec succès.");
+    } catch (error) {
+      console.error(error);
+
+      alert("Une erreur est survenue pendant la conversion.");
+    } finally {
+      hideLoader();
+    }
+  });
 });
