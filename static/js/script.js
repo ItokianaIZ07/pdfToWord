@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSelectedFileName(file);
   });
 
+  function clear() {
+    fetch("/clear", { method: "POST" });
+  }
+
   async function submit() {
     const data = new FormData(form);
 
@@ -48,7 +52,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (!response.ok) {
-      throw new Error("Erreur lors de la conversion");
+      const error = await response.json();
+      throw new Error(error.erreur || "Erreur lors de la conversion");
+    }
+
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+      const error = await response.json();
+      throw new Error(error.erreur);
     }
 
     const blob = await response.blob();
@@ -56,14 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const url = window.URL.createObjectURL(blob);
 
     const link = createLink(url);
-
     link.download = `${selectedFileName}.docx`;
 
     document.body.appendChild(link);
-
     link.click();
 
-    link.remove();
+    document.body.removeChild(link);
 
     window.URL.revokeObjectURL(url);
   }
@@ -99,9 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       console.error(error);
 
-      alert("Une erreur est survenue pendant la conversion.");
+      alert(error);
     } finally {
       hideLoader();
+      clear();
     }
   });
 });

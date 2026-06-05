@@ -9,4 +9,4 @@ class PdfConverter:
 
     @staticmethod
     def isExtensionValid(file):
-        return file.find(".pdf") != -1
+        return str.endswith(file, ".pdf")
