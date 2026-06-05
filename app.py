@@ -1,15 +1,19 @@
-from flask import Flask, send_file, request
-from converter.converter import Converter
+from flask import Flask, send_file, request, render_template, after_this_request, jsonify
+from converter.converter import PdfConverter
 import os
 import uuid
 
 app = Flask(__name__)
 
+@app.route('/', methods=["GET"])
+def index():
+    return render_template("index.html")
+
 @app.route('/convert', methods=['POST'])
 def convert_pdf_to_word():
     file = request.files['file']
 
-    if not Converter.isExtensionValid(file):
+    if not PdfConverter.isExtensionValid(file.filename):
         return {"erreur": "Le type de fichier n'est pas pris en charge. Veuillez importer un fichier pdf"}
 
     pdf_path = f"{uuid.uuid4()}.pdf"
@@ -17,7 +21,7 @@ def convert_pdf_to_word():
 
     file.save(pdf_path)
 
-    Converter.convert(pdf_path)
+    PdfConverter.convert(pdf_path, docx_path)
 
     response = send_file(
         docx_path,
@@ -25,12 +29,17 @@ def convert_pdf_to_word():
         download_name="converted.docx"
     )
 
-    # Nettoyage des fichiers temporaire après réponse
-    os.remove(pdf_path)
-    os.remove(docx_path)
+    # nettoyage après des fichiers temporaires après envoie
+    @after_this_request
+    def cleanup(response):
+        try:
+            os.remove(pdf_path)
+            os.remove(docx_path)
+        except Exception as e:
+            print(e)
+        return response
 
     return response
-
 
 if __name__ == '__main__':
     app.run(debug=True)
