@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   fileInput.addEventListener("change", () => {
+    files = fileInput.files;
     if (!files.length) return;
 
     const file = files[0];
